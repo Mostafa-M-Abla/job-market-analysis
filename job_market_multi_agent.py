@@ -1,78 +1,69 @@
-# Warning control
 import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 import os
 from dotenv import load_dotenv
 
 from crewai import Agent, Task, Crew, Process
+from google_jobs_tool import GoogleJobsCollectorTool
 
-from crewai_tools import (
- # FileReadTool,
-  #ScrapeWebsiteTool,
-  #MDXSearchTool,
-  SerperDevTool
-)
+# from crewai_tools import (
+#   FileReadTool,
+#   ScrapeWebsiteTool,
+#   MDXSearchTool,
+#   SerperDevTool
+# )
+#
+# from download_page_tool import DownloadPageTool
 
-from download_page_tool import DownloadPageTool
-
-load_dotenv()
-
-
-
-search_tool = SerperDevTool()
+#search_tool = SerperDevTool()
 #scrape_tool = ScrapeWebsiteTool()
 #read_resume = FileReadTool(file_path='./Resume.pdf')
 #semantic_search_resume = MDXSearchTool(mdx='./Resume.pdf')
 
 
+load_dotenv()
 
-# Agent 1:
+
+print("SERPAPI_API_KEY present?", bool(os.getenv("SERPAPI_API_KEY")))
+print("SERPAPI_API_KEY starts with:", (os.getenv("SERPAPI_API_KEY") or "")[:6])
+
+
+# Agent
 job_agent = Agent(
-    role="Job Postings Finder and Verifier",
-    goal="Do amazing Job in searching the internet and find Job listings relevant to the search.",
-    backstory=(
-        "You are an expert in online job hunting. You know how to find job listings, "
-        "extract and validate them, and ensure they match the specified job role."
-    ),
-    tools=[SerperDevTool(),DownloadPageTool()],
-    verbose=True
+    role="Job Postings Finder",
+    goal="Find relevant job postings for the given job titles and country and return structured results.",
+    backstory="You are an expert job market data collector using Google Jobs API.",
+    tools=[GoogleJobsCollectorTool()],  # IMPORTANT: instance
+    verbose=True,
 )
 
 # Task
 job_search_task = Task(
     description=(
-        "Search Google for 20 job listings matching the title: {job_title}. "
-        "For each URL, download the HTML using your tool. "
-        "Analyze the content and confirm if it's a real job posting related to the title. "
-        "Only keep listings that are valid and relevant. "
-        "Save the valid HTML pages locally and return a summary list with:\n"
-        "- URL\n"
-        "- Page title (cleaned)\n"
-        "- Local HTML file path"
+        "Use the Google Jobs Collector Tool to retrieve {total_num_posts} job postings for these titles: {job_titles} "
+        "in {country}. Ensure each posting has title/company/location and include full job description when available."
     ),
     expected_output=(
-        "A list of 20 validated job listings. Each entry must include:\n"
-        "- The original job listing URL\n"
-        "- The page title or identified job title\n"
-        "- Path to the saved HTML file"
+        "A JSON-like list of job postings (length = {total_num_posts}). Each item must include: "
+        "title, company, location, description, job_id."
     ),
-    agent=job_agent
+    agent=job_agent,
 )
 
-# Crew setup
 crew = Crew(
     agents=[job_agent],
     tasks=[job_search_task],
-    process=Process.sequential
+    process=Process.sequential,
 )
 
 # "job_titles": "AI Engineer, Generative AI Engineer, GenAI Engineer, Agentic AI Engineer",
 
-# Run the crew
+
 if __name__ == "__main__":
+    # Use list for job_titles (not a single string)
     result = crew.kickoff(inputs={
-        "job_titles": "AI Engineer",
+        "job_titles": ["AI Engineer"],
         "country": "Egypt",
         "total_num_posts": 2,
     })
@@ -84,6 +75,65 @@ if __name__ == "__main__":
 
 
 
+
+
+
+
+
+
+
+#
+# # Agent 1:
+# job_agent = Agent(
+#     role="Job Postings Finder and Verifier",
+#     goal="Do amazing Job in searching the internet and find Job listings relevant to the search.",
+#     backstory=(
+#         "You are an expert in online job hunting. You know how to find job listings, "
+#         "extract and validate them, and ensure they match the specified job role."
+#     ),
+#     tools=[SerperDevTool(),DownloadPageTool()],
+#     verbose=True
+# )
+#
+# # Task
+# job_search_task = Task(
+#     description=(
+#         "Search Google for 20 job listings matching the title: {job_title}. "
+#         "For each URL, download the HTML using your tool. "
+#         "Analyze the content and confirm if it's a real job posting related to the title. "
+#         "Only keep listings that are valid and relevant. "
+#         "Save the valid HTML pages locally and return a summary list with:\n"
+#         "- URL\n"
+#         "- Page title (cleaned)\n"
+#         "- Local HTML file path"
+#     ),
+#     expected_output=(
+#         "A list of 20 validated job listings. Each entry must include:\n"
+#         "- The original job listing URL\n"
+#         "- The page title or identified job title\n"
+#         "- Path to the saved HTML file"
+#     ),
+#     agent=job_agent
+# )
+#
+# # Crew setup
+# crew = Crew(
+#     agents=[job_agent],
+#     tasks=[job_search_task],
+#     process=Process.sequential
+# )
+#
+# # "job_titles": "AI Engineer, Generative AI Engineer, GenAI Engineer, Agentic AI Engineer",
+#
+# # Run the crew
+# if __name__ == "__main__":
+#     result = crew.kickoff(inputs={
+#         "job_title": "AI Engineer",
+#         "country": "Egypt",
+#         "total_num_posts": 2,
+#     })
+#     print("\nFINAL OUTPUT:\n", result)
+#
 
 
 
