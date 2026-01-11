@@ -1,0 +1,171 @@
+# Warning control
+import warnings
+warnings.filterwarnings('ignore')
+
+
+import os
+from dotenv import load_dotenv
+
+from crewai import Agent, Task, Crew, Process
+
+from crewai_tools import (
+ # FileReadTool,
+  #ScrapeWebsiteTool,
+  #MDXSearchTool,
+  SerperDevTool
+)
+
+from download_page_tool import DownloadPageTool
+
+load_dotenv()
+
+#TODO impriove assigning
+# openai_api_key=os.getenv('OPENAI_API_KEY')
+# serp_api_key=os.getenv('SERPAPI_API_KEY')
+#
+# os.environ["OPENAI_API_KEY"] = openai_api_key
+# os.environ["SERPER_API_KEY"] = serp_api_key
+
+search_tool = SerperDevTool()
+#scrape_tool = ScrapeWebsiteTool()
+#read_resume = FileReadTool(file_path='./Resume.pdf')
+#semantic_search_resume = MDXSearchTool(mdx='./Resume.pdf')
+
+
+
+
+# Set API keys
+
+
+# Tools
+search_tool = SerperDevTool()
+#dowonload_tool = DownloadPageTool()
+
+# Agent
+job_agent = Agent(
+    role="Job Listing Finder and Verifier",
+    goal="Search the internet for job listings and verify their relevance to the given job title.",
+    backstory=(
+        "You are an expert in online job hunting. You know how to find job listings, "
+        "extract and validate them, and ensure they match the specified job role."
+    ),
+    tools=[search_tool,DownloadPageTool()],
+    verbose=True
+)
+
+# Task
+job_search_task = Task(
+    description=(
+        "Search Google for 20 job listings matching the title: {job_title}. "
+        "For each URL, download the HTML using your tool. "
+        "Analyze the content and confirm if it's a real job posting related to the title. "
+        "Only keep listings that are valid and relevant. "
+        "Save the valid HTML pages locally and return a summary list with:\n"
+        "- URL\n"
+        "- Page title (cleaned)\n"
+        "- Local HTML file path"
+    ),
+    expected_output=(
+        "A list of 20 validated job listings. Each entry must include:\n"
+        "- The original job listing URL\n"
+        "- The page title or identified job title\n"
+        "- Path to the saved HTML file"
+    ),
+    agent=job_agent
+)
+
+# Crew setup
+crew = Crew(
+    agents=[job_agent],
+    tasks=[job_search_task],
+    process=Process.sequential
+)
+
+# Run the crew
+if __name__ == "__main__":
+    result = crew.kickoff(inputs={"job_title": "Frontend Developer"})
+    print("\nFINAL OUTPUT:\n", result)
+
+
+
+
+
+
+
+
+
+
+
+#
+# # Agent 1: Researcher
+# researcher = Agent(
+#     role="Job Postings Collector",
+#     goal="Make sure to do amazing analysis on "
+#          "job posting to help job applicants",
+#     tools = [scrape_tool, search_tool],
+#     verbose=True,
+#     backstory=(
+#         "As a Job Researcher, your prowess in "
+#         "navigating and extracting critical "
+#         "information from job postings is unmatched."
+#         "Your skills help pinpoint the necessary "
+#         "qualifications and skills sought "
+#         "by employers, forming the foundation for "
+#         "effective application tailoring."
+#     )
+# )
+#
+#
+# # Agent 2: Profiler
+# profiler = Agent(
+#     role="Personal Profiler for Engineers",
+#     goal="Do increditble research on job applicants "
+#          "to help them stand out in the job market",
+#     tools = [scrape_tool, search_tool,
+#              read_resume, semantic_search_resume],
+#     verbose=True,
+#     backstory=(
+#         "Equipped with analytical prowess, you dissect "
+#         "and synthesize information "
+#         "from diverse sources to craft comprehensive "
+#         "personal and professional profiles, laying the "
+#         "groundwork for personalized resume enhancements."
+#     )
+# )
+#
+#
+# # Task 1: Task for Researcher Agent: Extract Job Requirements
+# research_task = Task(
+#     description=(
+#         "Analyze the job posting URL provided ({job_posting_url}) "
+#         "to extract key skills, experiences, and qualifications "
+#         "required. Use the tools to gather content and identify "
+#         "and categorize the requirements."
+#     ),
+#     expected_output=(
+#         "A structured list of job requirements, including necessary "
+#         "skills, qualifications, and experiences."
+#     ),
+#     agent=researcher,
+#     async_execution=True
+# )
+#
+#
+#
+# # Task2: Task for Profiler Agent: Compile Comprehensive Profile
+# profile_task = Task(
+#     description=(
+#         "Compile a detailed personal and professional profile "
+#         "using the GitHub ({github_url}) URLs, and personal write-up "
+#         "({personal_writeup}). Utilize tools to extract and "
+#         "synthesize information from these sources."
+#     ),
+#     expected_output=(
+#         "A comprehensive profile document that includes skills, "
+#         "project experiences, contributions, interests, and "
+#         "communication style."
+#     ),
+#     agent=profiler,
+#     async_execution=True
+# )
+#
