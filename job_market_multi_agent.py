@@ -1,11 +1,17 @@
 import warnings
 warnings.filterwarnings("ignore")
+import time
+from datetime import datetime
+
+import json
+from pathlib import Path
 
 import os
 from dotenv import load_dotenv
 
 from crewai import Agent, Task, Crew, Process
 from google_jobs_tool import GoogleJobsCollectorTool
+
 
 # from crewai_tools import (
 #   FileReadTool,
@@ -21,20 +27,17 @@ from google_jobs_tool import GoogleJobsCollectorTool
 #read_resume = FileReadTool(file_path='./Resume.pdf')
 #semantic_search_resume = MDXSearchTool(mdx='./Resume.pdf')
 
+OUTPUT_DIR = Path("outputs")
+OUTPUT_DIR.mkdir(exist_ok=True)
 
 load_dotenv()
-
-
-print("SERPAPI_API_KEY present?", bool(os.getenv("SERPAPI_API_KEY")))
-print("SERPAPI_API_KEY starts with:", (os.getenv("SERPAPI_API_KEY") or "")[:6])
-
 
 # Agent
 job_agent = Agent(
     role="Job Postings Finder",
     goal="Find relevant job postings for the given job titles and country and return structured results.",
     backstory="You are an expert job market data collector using Google Jobs API.",
-    tools=[GoogleJobsCollectorTool()],  # IMPORTANT: instance
+    tools=[GoogleJobsCollectorTool()],
     verbose=True,
 )
 
@@ -57,32 +60,54 @@ crew = Crew(
     process=Process.sequential,
 )
 
-# "job_titles": "AI Engineer, Generative AI Engineer, GenAI Engineer, Agentic AI Engineer",
-
 
 if __name__ == "__main__":
-    # Use list for job_titles (not a single string)
+    start_time = time.time()
+
     result = crew.kickoff(inputs={
-        "job_titles": ["AI Engineer"],
+        "job_titles": ["AI Engineer", "Generative AI Engineer", "GenAI Engineer", "Agentic AI Engineer", "Machine Learning Engineer", "ML Engineer"],
         "country": "Egypt",
         "total_num_posts": 2,
     })
     print("\nFINAL OUTPUT:\n", result)
 
+    #  Full crew output (metadata + tasks output + raw, etc.)
+    crew_dict = result.to_dict() if hasattr(result, "to_dict") else result.model_dump()
+
+    # Save full run (best for debugging)
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    full_path = OUTPUT_DIR / f"crew_output_{ts}.json"
+    with open(full_path, "w", encoding="utf-8") as f:
+        json.dump(crew_dict, f, indent=2, ensure_ascii=False)
+
+    print(f"Saved full crew output: {full_path.resolve()}")
+
+    # ✅ Save only the main "final" content you care about
+    # In CrewAI, this is usually in the last task output.
+    tasks_output = crew_dict.get("tasks_output", [])
+    final_text = None
+
+    if tasks_output:
+        # last task is your job_search_task
+        last = tasks_output[-1]
+        # common field name in CrewAI outputs:
+        final_text = last.get("output") or last.get("raw") or last.get("result")
+
+    final_path = OUTPUT_DIR / f"final_result_{ts}.json"
+    payload = {"final_result": final_text} if final_text is not None else {"final_result": str(result)}
+
+    with open(final_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, ensure_ascii=False)
+
+    print(f"Saved final result: {final_path.resolve()}")
+
+
+    print("Execution time in minutes = ",  (time.time() - start_time)/60)
 
 
 
 
 
-
-
-
-
-
-
-
-
-#
 # # Agent 1:
 # job_agent = Agent(
 #     role="Job Postings Finder and Verifier",
