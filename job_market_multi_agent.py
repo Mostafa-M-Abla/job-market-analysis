@@ -2,7 +2,6 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-
 import os
 from dotenv import load_dotenv
 
@@ -19,12 +18,7 @@ from download_page_tool import DownloadPageTool
 
 load_dotenv()
 
-#TODO impriove assigning
-# openai_api_key=os.getenv('OPENAI_API_KEY')
-# serp_api_key=os.getenv('SERPAPI_API_KEY')
-#
-# os.environ["OPENAI_API_KEY"] = openai_api_key
-# os.environ["SERPER_API_KEY"] = serp_api_key
+
 
 search_tool = SerperDevTool()
 #scrape_tool = ScrapeWebsiteTool()
@@ -33,23 +27,15 @@ search_tool = SerperDevTool()
 
 
 
-
-# Set API keys
-
-
-# Tools
-search_tool = SerperDevTool()
-#dowonload_tool = DownloadPageTool()
-
-# Agent
+# Agent 1:
 job_agent = Agent(
-    role="Job Listing Finder and Verifier",
-    goal="Search the internet for job listings and verify their relevance to the given job title.",
+    role="Job Postings Finder and Verifier",
+    goal="Do amazing Job in searching the internet and find Job listings relevant to the search.",
     backstory=(
         "You are an expert in online job hunting. You know how to find job listings, "
         "extract and validate them, and ensure they match the specified job role."
     ),
-    tools=[search_tool,DownloadPageTool()],
+    tools=[SerperDevTool(),DownloadPageTool()],
     verbose=True
 )
 
@@ -81,9 +67,15 @@ crew = Crew(
     process=Process.sequential
 )
 
+# "job_titles": "AI Engineer, Generative AI Engineer, GenAI Engineer, Agentic AI Engineer",
+
 # Run the crew
 if __name__ == "__main__":
-    result = crew.kickoff(inputs={"job_title": "Frontend Developer"})
+    result = crew.kickoff(inputs={
+        "job_titles": "AI Engineer",
+        "country": "Egypt",
+        "total_num_posts": 2,
+    })
     print("\nFINAL OUTPUT:\n", result)
 
 
