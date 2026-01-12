@@ -136,39 +136,42 @@ if __name__ == "__main__":
     result = crew.kickoff(inputs={
         "job_titles": ["AI Engineer", "Generative AI Engineer", "GenAI Engineer", "Agentic AI Engineer", "Machine Learning Engineer", "ML Engineer"],
         "country": "Egypt",
-        "total_num_posts": 3,
+        "total_num_posts": 2,
     })
     print("\nFINAL OUTPUT:\n", result)
 
-    #  Full crew output (metadata + tasks output + raw, etc.)
-    crew_dict = result.to_dict() if hasattr(result, "to_dict") else result.model_dump()
+    crew_dict = result.model_dump(mode="json")
 
-    # Save full run (best for debugging)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # 1) Save full crew output (debugging / traces)
     full_path = OUTPUT_DIR / f"crew_output_{ts}.json"
     with open(full_path, "w", encoding="utf-8") as f:
         json.dump(crew_dict, f, indent=2, ensure_ascii=False)
-
     print(f"Saved full crew output: {full_path.resolve()}")
 
-    # ✅ Save only the main "final" content you care about
-    # In CrewAI, this is usually in the last task output.
+    # 2) Save each task output separately
     tasks_output = crew_dict.get("tasks_output", [])
-    final_text = None
+    for i, task_out in enumerate(tasks_output, start=1):
+        task_file = OUTPUT_DIR / f"task_{i}_output_{ts}.json"
+        with open(task_file, "w", encoding="utf-8") as f:
+            json.dump(task_out, f, indent=2, ensure_ascii=False)
+        print(f"Saved task {i} output: {task_file.resolve()}")
 
+    # 3) Save final output (last task) as JSON + Markdown
+    final_text = None
     if tasks_output:
-        # last task is your job_search_task
         last = tasks_output[-1]
-        # common field name in CrewAI outputs:
         final_text = last.get("output") or last.get("raw") or last.get("result")
 
-    final_path = OUTPUT_DIR / f"final_result_{ts}.json"
-    payload = {"final_result": final_text} if final_text is not None else {"final_result": str(result)}
+    final_json_path = OUTPUT_DIR / f"final_result_{ts}.json"
+    with open(final_json_path, "w", encoding="utf-8") as f:
+        json.dump({"final_result": final_text}, f, indent=2, ensure_ascii=False)
+    print(f"Saved final JSON: {final_json_path.resolve()}")
 
-    with open(final_path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
-
-    print(f"Saved final result: {final_path.resolve()}")
-
+    final_md_path = OUTPUT_DIR / f"final_result_{ts}.md"
+    with open(final_md_path, "w", encoding="utf-8") as f:
+        f.write(final_text or "")
+    print(f"Saved final Markdown: {final_md_path.resolve()}")
 
     print("Execution time: ",  ((time.time() - start_time)/60), " minutes")
