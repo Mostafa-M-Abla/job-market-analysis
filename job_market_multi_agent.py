@@ -3,7 +3,6 @@ warnings.filterwarnings("ignore")
 import time
 from datetime import datetime
 from langchain_openai import ChatOpenAI
-
 import json
 from pathlib import Path
 
@@ -12,6 +11,7 @@ from dotenv import load_dotenv
 
 from crewai import Agent, Task, Crew, Process
 from google_jobs_tool import GoogleJobsCollectorTool
+from resume_pdf_tool import ResumePDFTextTool
 
 
 from crewai_tools import (
@@ -127,14 +127,14 @@ resume_skills_extractor_agent = Agent(
     backstory="You are an expert Skills extractor you extract all info from a Resume that can be useful for the recruiters decisoion to hire the candiaate or no",
     verbose=True,
     allow_delegation=False,
-    tools=[read_resume],
+    tools=[ResumePDFTextTool()],
     # llm=f"openai/{OPENAI_MODEL}",
 )
 
 #Task 4: Resume Skills Extraction
 resume_skills_extraction_task = Task(
     description=(
-        "Use the read_resume tool to read the given Resume pdf file."
+        "Use the ResumePDFTextTool tool to read the given Resume pdf file."
         "Extract all technical skills and tools, certifications, cloud platforms (AWS, Azure, GCP) and other points of "
         "strength of the candidate from the Resume pdf file."
     ),
@@ -145,15 +145,15 @@ resume_skills_extraction_task = Task(
     context=[],
 )
 
-# Agent 5: Resume Gap Analyzer
-resume_gap_analyzer_agent = Agent(
-    role="Resume Gap Analyzer",
-    goal = "Suggest Technical skills and tools, certifications and cloud platforms for a candidate that will strengthen "
-           "his Resume for a give job title",
+# Agent 5: Resume booster agent
+resume_booster_agent = Agent(
+    role="Resume Booster Specialist",
+    goal = "Suggest Technical skills and tools, certifications and cloud platforms for the user that will boost "
+           "his Resume for a given job title",
     backstory="You are an expert Career coach, you have knowledge of most needed Job requirements for certain job "
               "title/s and also you have knowledge of the candidate skills and tool set. Based on this data suggest "
-              "the skill and tools that teh candidate should attain to better suit teh job market."
-              "You don't hallucinate or make up data, you use teh data attained from previous tasks to suggest the needed skills and tools "
+              "the skill and tools that the user should attain to better suit the job market."
+              "You don't hallucinate or make up data, you use the data attained from previous tasks to suggest the needed skills and tools "
               "You avoid duplication and you understand synonyms of skills and tools e.g. ML and Machine learning are the same.",
     verbose=True,
     allow_delegation=False,
@@ -161,27 +161,63 @@ resume_gap_analyzer_agent = Agent(
 )
 
 #Task 5: Resume Gap Identification
-resume_gap_identification_task = Task(
+resume_boost_task = Task(
     description=(
         "Using the info about most needed technical skills and tools, cloud platforms, certifications about the target job "
-        "title from the job_requirements_analysis_task and using the candidates technical skills and tools, "
+        "title from the job_requirements_analysis_task and using the user's technical skills and tools, "
         "cloud platforms, certifications and other points given by the previous resume_skills_extraction_task, suggest "
-        "the top 5 technical skills and tools that the candidate need to acquire so that the candidate is better "
-        "suited for the job market (i.e. check what the candidate already has and suggest teh items he need to acquire that are most needed). "
+        "the top 5 technical skills and tools that the user should learn next to further boost his/her Resume and have a better chance"
+        "in the job market (i.e. check what the user already has and suggest the items he/she needs to acquire that are most needed). "
         "Also list in what percentage of the job postings scanned was each of those suggested 5 skills/tools mentioned."
+        "The wording should be positive, you are providing next step improvements for the user!"
     ),
     expected_output=(
         "A markdown report containing the requested info and the report should be well formatted with proper headings and tables/Charts."
     ),
-    agent=resume_gap_analyzer_agent,
+    agent=resume_booster_agent,
     context=[job_requirements_analysis_task, resume_skills_extraction_task],
+)
+
+# Agent 6: Report writer agent
+report_writer_agent = Agent(
+    role="Reports Writer Specialist",
+    goal = "Create a report as markdown or pdf",
+    backstory="You are an expert Reports writer, you can write markdown and pdf files"
+              "You use available data to create information rich, good looking and visually appealing reports"
+              "You don't hallucinate or make up data, you use the data attained from previous tasks to write the reports "
+              "You avoid duplication and you understand synonyms of skills and tools e.g. ML and Machine learning are the same.",
+    verbose=True,
+    allow_delegation=False,
+    tools = [MarkdownToRichPDFTool()],
+    # llm=f"openai/{OPENAI_MODEL}",
+)
+
+#Task 6: Report writing task
+report_writing_task = Task(
+    description=(
+        "Using the info and the mark down files from the previous two tasks (job_requirements_analysis_task and "
+        "resume_boost_task), put the information in one report. "
+        "In the report you must mention, the target job titles, the country and the number of job positions scanned. Then show the results of the job "
+        "market analysis, then at teh end show teh boosting suggestions."
+        "You must create two versions from the report one as markdown report and one a s pdf report."
+        "You don't hallucinate or make up data, you use the data attained from previous tasks to write the reports "
+        "You avoid duplication and you understand synonyms of skills and tools e.g. ML and Machine learning are the same."
+        "You provide teh information in an informative and appealing style."
+        "The pdf version should be colourful and visually appealing, use visually appealing charts whenever necessary"
+        "Use the MarkdownToRichPDFTool to create the pdf file "
+    ),
+    expected_output=(
+        "Two versions of teh report, one as a markdown and one as pdf, the reports must be well formatted and visually appealling and contain teh requested info."
+    ),
+    agent=report_writer_agent,
+    context=[job_requirements_analysis_task, resume_boost_task],
 )
 
 
 
 crew = Crew(
-    agents=[job_postings_finder_agent, requirements_extractor_agent, requirements_analyzer_agent, resume_skills_extractor_agent, resume_gap_analyzer_agent],
-    tasks=[job_search_task, job_requirements_task, job_requirements_analysis_task, resume_skills_extraction_task, resume_gap_identification_task],
+    agents=[job_postings_finder_agent, requirements_extractor_agent, requirements_analyzer_agent, resume_skills_extractor_agent, resume_booster_agent, report_writer_agent],
+    tasks=[job_search_task, job_requirements_task, job_requirements_analysis_task, resume_skills_extraction_task, resume_boost_task, report_writing_task],
     process=Process.sequential,
 )
 
