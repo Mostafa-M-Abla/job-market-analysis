@@ -14,18 +14,18 @@ from crewai import Agent, Task, Crew, Process
 from google_jobs_tool import GoogleJobsCollectorTool
 
 
-# from crewai_tools import (
-#   FileReadTool,
+from crewai_tools import (
+   FileReadTool
 #   ScrapeWebsiteTool,
 #   MDXSearchTool,
 #   SerperDevTool
-# )
+)
 #
 # from download_page_tool import DownloadPageTool
 
 #search_tool = SerperDevTool()
 #scrape_tool = ScrapeWebsiteTool()
-#read_resume = FileReadTool(file_path='./Resume.pdf')
+read_resume = FileReadTool(file_path='./Resume.pdf')
 #semantic_search_resume = MDXSearchTool(mdx='./Resume.pdf')
 
 OUTPUT_DIR = Path("outputs")
@@ -35,7 +35,7 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 load_dotenv()
 
 # Agent 1: Job Postings Finder
-job_agent = Agent(
+job_postings_finder_agent = Agent(
     role="Job Postings Finder",
     goal="Find relevant job postings for the given job titles and country and return structured results.",
     backstory="You are an expert job market data collector using Google Jobs API.",
@@ -56,7 +56,7 @@ job_search_task = Task(
         "A JSON-like list of job postings (length = {total_num_posts}). Each item must include: "
         "title, company, location, description, job_id."
     ),
-    agent=job_agent,
+    agent=job_postings_finder_agent,
 )
 
 # Agent 2: Job Requirements Extractor
@@ -98,6 +98,7 @@ requirements_analyzer_agent = Agent(
     # llm=f"openai/{OPENAI_MODEL}",
 )
 
+#TODO may be later change to Top 20 technical skills ...
 #Task 3: Analyze Job Requirements and create markdown Report
 job_requirements_analysis_task = Task(
     description=(
@@ -109,7 +110,8 @@ job_requirements_analysis_task = Task(
         "Note: If a tool or skill appears multiple times in a single job posting, count it only once for that posting."
         "The output for each category (technical skills and tools, cloud platforms and certifications) should show a "
         "a column mentioning number of positions where the item appeared and a column mentioning % of positions where item appeared."
-        "Avoid duplication of skills and avoid hallucinating items not present in the text."
+        "Avoid duplication of skills and avoid hallucinating items not present in the text. "
+        "In the final answer group skills and tools that has the same meaning together to avoid duplication e.g. CI/CD and CI /CD are teh same and should be listed only once."
     ),
     expected_output=(
         "A markdown report containing the requested info and the report should be well formatted with proper headings and tables/Charts."
@@ -118,13 +120,68 @@ job_requirements_analysis_task = Task(
 )
 
 
-#TODO tell tasks/agemts
+# Agent 4: Resume Extractor
+resume_skills_extractor_agent = Agent(
+    role="Resume Content Extractor",
+    goal = "Extract Technical skills and tools, certifications and other points of strength of a candidate from a given Resume",
+    backstory="You are an expert Skills extractor you extract all info from a Resume that can be useful for the recruiters decisoion to hire the candiaate or no",
+    verbose=True,
+    allow_delegation=False,
+    tools=[read_resume],
+    # llm=f"openai/{OPENAI_MODEL}",
+)
+
+#Task 4: Resume Skills Extraction
+resume_skills_extraction_task = Task(
+    description=(
+        "Use the read_resume tool to read the given Resume pdf file."
+        "Extract all technical skills and tools, certifications, cloud platforms (AWS, Azure, GCP) and other points of "
+        "strength of the candidate from the Resume pdf file."
+    ),
+    expected_output=(
+        "A JSON-like output of extracted items from the resume document: technical_skills and tools (list), cloud_platforms'AWS, Azure or GCP' (list), certifications (list)."
+    ),
+    agent=resume_skills_extractor_agent,
+    context=[],
+)
+
+# Agent 5: Resume Gap Analyzer
+resume_gap_analyzer_agent = Agent(
+    role="Resume Gap Analyzer",
+    goal = "Suggest Technical skills and tools, certifications and cloud platforms for a candidate that will strengthen "
+           "his Resume for a give job title",
+    backstory="You are an expert Career coach, you have knowledge of most needed Job requirements for certain job "
+              "title/s and also you have knowledge of the candidate skills and tool set. Based on this data suggest "
+              "the skill and tools that teh candidate should attain to better suit teh job market."
+              "You don't hallucinate or make up data, you use teh data attained from previous tasks to suggest the needed skills and tools "
+              "You avoid duplication and you understand synonyms of skills and tools e.g. ML and Machine learning are the same.",
+    verbose=True,
+    allow_delegation=False,
+    # llm=f"openai/{OPENAI_MODEL}",
+)
+
+#Task 5: Resume Gap Identification
+resume_gap_identification_task = Task(
+    description=(
+        "Using the info about most needed technical skills and tools, cloud platforms, certifications about the target job "
+        "title from the job_requirements_analysis_task and using the candidates technical skills and tools, "
+        "cloud platforms, certifications and other points given by the previous resume_skills_extraction_task, suggest "
+        "the top 5 technical skills and tools that the candidate need to acquire so that the candidate is better "
+        "suited for the job market (i.e. check what the candidate already has and suggest teh items he need to acquire that are most needed). "
+        "Also list in what percentage of the job postings scanned was each of those suggested 5 skills/tools mentioned."
+    ),
+    expected_output=(
+        "A markdown report containing the requested info and the report should be well formatted with proper headings and tables/Charts."
+    ),
+    agent=resume_gap_analyzer_agent,
+    context=[job_requirements_analysis_task, resume_skills_extraction_task],
+)
 
 
 
 crew = Crew(
-    agents=[job_agent, requirements_extractor_agent, requirements_analyzer_agent],
-    tasks=[job_search_task, job_requirements_task, job_requirements_analysis_task],
+    agents=[job_postings_finder_agent, requirements_extractor_agent, requirements_analyzer_agent, resume_skills_extractor_agent, resume_gap_analyzer_agent],
+    tasks=[job_search_task, job_requirements_task, job_requirements_analysis_task, resume_skills_extraction_task, resume_gap_identification_task],
     process=Process.sequential,
 )
 
