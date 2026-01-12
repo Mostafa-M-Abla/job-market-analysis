@@ -50,7 +50,7 @@ job_search_task = Task(
     description=(
         "Use the Google Jobs Collector Tool to retrieve {total_num_posts} job postings for these titles: {job_titles} "
         "in {country}, you can use one or more of the given job titles for your search. Ensure each posting has title/company/location and "
-        "include full job description when available. Make sure that the all retrieved job postings are very close to the given job titles."
+        "include full job description and requirements when available. Make sure that the all retrieved job postings are very close to the given job titles."
     ),
     expected_output=(
         "A JSON-like list of job postings (length = {total_num_posts}). Each item must include: "
@@ -76,11 +76,11 @@ job_requirements_task = Task(
         "Analyze the retrieved job postings and extract the required technical skills, tools, cloud platforms (only 3 "
         "cloud platforms are allowed in that category: AWS 'Amazon Webs services' or GCP 'Google Cloud Platform' or Azure), "
         "and certifications into a JSON array. Each entry should correspond to a job posting and include: "
-        "'job_id', 'technical_skills' (list), 'tools' (list), 'cloud_platforms' (list), 'certifications' (list). "
+        "'job_id', 'technical_skills and tools' (list), 'cloud_platforms' (list), 'certifications' (list). "
         "Avoid duplications and only include items explicitly mentioned in the descriptions."
     ),
     expected_output=(
-        "A JSON-like list where each item has: job_id, technical_skills (list), tools (list), "
+        "A JSON-like list where each item has: job_id, technical_skills and tools (list), "
         "cloud_platforms'AWS, Azure or GCP' (list), certifications (list)."
     ),
     agent=requirements_extractor_agent,
@@ -89,9 +89,9 @@ job_requirements_task = Task(
 # Agent 3: Job Requirements Analyzer
 requirements_analyzer_agent = Agent(
     role="Job Requirements Analyzer",
-    goal="Create an overview of most in demand skills and tools",
+    goal="Create an overview of most in demand requirements",
     backstory="You are an expert Job requirements analyzer, you can understand and group job requirements, "
-              "you understand synonyms. e.g. ML and Machine Learning both point teh same skill"
+              "you understand synonyms. e.g. ML and Machine Learning both point the same skill"
               "You are precise and avoid hallucinating items not present in the text. And you avoid duplications",
     verbose=True,
     allow_delegation=False,
@@ -102,13 +102,12 @@ requirements_analyzer_agent = Agent(
 job_requirements_analysis_task = Task(
     description=(
         "Given the extracted job requirements from multiple job postings, Analyze the extracted job requirements and "
-        "create a markdown report, providing teh following info:"
-        "1- Top 15 technical skills mentioned across all job postings."
-        "2- Top 15 tools mentioned across all job postings."
-        "3- Top 3 cloud platforms mentioned across all job postings (only 3 platforms are allowed in that category: AWS, Azure, GCP)."
-        "4- Top 5 certifications mentioned across all job postings."
+        "create a markdown report, providing the following info:"
+        "1- All technical skills and tools mentioned across all job postings."
+        "2- Top 3 cloud platforms mentioned across all job postings (only 3 platforms are allowed in that category: AWS, Azure, GCP)."
+        "3- Top 5 certifications mentioned across all job postings."
         "Note: If a tool or skill appears multiple times in a single job posting, count it only once for that posting."
-        "The output for each category (technical skills, tools, cloud platforms and certifications) should show a "
+        "The output for each category (technical skills and tools, cloud platforms and certifications) should show a "
         "a column mentioning number of positions where the item appeared and a column mentioning % of positions where item appeared."
         "Avoid duplication of skills and avoid hallucinating items not present in the text."
     ),
@@ -152,11 +151,12 @@ if __name__ == "__main__":
 
     # 2) Save each task output separately
     tasks_output = crew_dict.get("tasks_output", [])
-    for i, task_out in enumerate(tasks_output, start=1):
-        task_file = OUTPUT_DIR / f"task_{i}_output_{ts}.json"
-        with open(task_file, "w", encoding="utf-8") as f:
-            json.dump(task_out, f, indent=2, ensure_ascii=False)
-        print(f"Saved task {i} output: {task_file.resolve()}")
+    #Uncomment if each task to be logged in a separate json file
+    # for i, task_out in enumerate(tasks_output, start=1):
+    #     task_file = OUTPUT_DIR / f"task_{i}_output_{ts}.json"
+    #     with open(task_file, "w", encoding="utf-8") as f:
+    #         json.dump(task_out, f, indent=2, ensure_ascii=False)
+    #     print(f"Saved task {i} output: {task_file.resolve()}")
 
     # 3) Save final output (last task) as JSON + Markdown
     final_text = None
