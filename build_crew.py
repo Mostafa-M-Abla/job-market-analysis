@@ -185,15 +185,14 @@ def build_muti_agent_crew():
             "- Number of job listings analyzed: {total_num_posts}  \n\n"
         
             "Then include the following sections:\n"
-            "1. **Job Market Analysis** — summarize the top 20 most in-demand technical skills, tools, cloud platforms, and certifications using charts or tables.\n"
+            "1. **Job Market Analysis** — summarize the top 20 most in-demand technical skills, tools, cloud platforms, and certifications.\n"
             "2. **Resume Boosting Suggestions** — briefly explain that this section compares the user’s resume with the market needs and presents top 5 suggested skills/tools to learn next. Include frequency stats.\n\n"
         
             "Style Requirements:\n"
             "- Use polite, concise, and encouraging tone.\n"
             "- Use colorful, light-themed HTML with professional formatting.\n"
-            "- Include visually attractive tables and charts where appropriate.\n"
+            "- Include visually attractive tables or charts where appropriate.\n"
             "- Avoid hallucinations and duplications.\n"
-            "- Avoid repeating the same data across tables and charts.\n"
             "- Do not suggest how to phrase resume content; only present insights.\n\n"
             
             "Use SaveHTMLTool to save the final report to disk."
