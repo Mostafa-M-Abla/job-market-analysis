@@ -31,6 +31,14 @@ def _title_is_similar(found_title: str, target_titles: List[str]) -> bool:
 
 
 class GoogleJobsCollectorTool(BaseTool):
+    """
+    Tool for collecting job listings using SerpAPI's Google Jobs integration.
+
+    This class queries job listings by job title and country, filters them for relevance,
+    and optionally fetches full job descriptions using Google Jobs Listing API.
+    Returns a structured list of matching job postings.
+    """
+
     name: str = "Google Jobs Collector Tool"
     description: str = (
         "Uses SerpAPI Google Jobs API to find job postings by title and country, "

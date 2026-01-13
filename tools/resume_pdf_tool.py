@@ -3,6 +3,14 @@ from pathlib import Path
 from PyPDF2 import PdfReader
 
 class ResumePDFTextTool(BaseTool):
+    """
+    Tool for extracting raw text content from a resume PDF file.
+
+    Reads and extracts readable text from the PDF (default: Resume.pdf),
+    handling multi-page documents. Alerts if no text is found (e.g., scanned images).
+    Used to prepare resume content for analysis.
+    """
+
     name: str = "Resume PDF Text Extractor"
     description: str = "Extracts readable text from Resume.pdf and returns it as a single string."
 
