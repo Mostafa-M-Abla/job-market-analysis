@@ -10,23 +10,31 @@ from langchain_core.output_parsers import JsonOutputParser
 evaluate_html_report.py
 
 This script evaluates the quality of a generated HTML report produced by the multi-agent job market analysis system.
-It uses an LLM (e.g., GPT-4) to score the report on key criteria such as relevance, accuracy, completeness, clarity,
-visual appeal, and insightfulness. Each criterion is rated from 1 to 5, with a final composite score out of 10.
+It uses a GPT-4 model via LangChain to score the report on several key criteria:
+- Relevance
+- Accuracy
+- Completeness
+- Clarity
+- Visual Appeal
+- Insights
 
-The evaluation is performed using a LangChain Runnable chain and is fully traceable via LangSmith.
-LangSmith provides full visibility into the prompt, LLM reasoning, and evaluation outputs.
+Each is scored from 1 to 10, and a final_score is provided out of 10.
 
-Example output:
+The evaluation is fully traceable via LangSmith, allowing inspection of prompt inputs, outputs, and LLM reasoning.
+
+✅ Example output:
 {
-    "relevance": 5,
-    "accuracy": 4,
-    "completeness": 5,
-    "clarity": 4,
-    "visual_appeal": 5,
-    "insights": 5,
+    "relevance": 9,
+    "accuracy": 8,
+    "completeness": 10,
+    "clarity": 9,
+    "visual_appeal": 10,
+    "insights": 9,
     "final_score": 9,
-    "comments": "Great structure and helpful suggestions. Could add more visual distinction between sections."
+    "comments": "Well-structured and visually clean. Skill insights are well-targeted. Great use of tables."
 }
+
+Make sure your .env contains valid OPENAI and LANGSMITH API keys.
 """
 
 # Load .env vars
@@ -49,25 +57,25 @@ prompt = ChatPromptTemplate.from_messages([
     ("user", """
 Evaluate the following HTML report on these criteria, and return JSON with keys:
 relevance, accuracy, completeness, clarity, visual_appeal, insights, and final_score (out of 10).
-Each is scored out of 5. Add comments if needed.
+Each criterion is scored out of 10 (not 5). Add helpful comments.
 
-Criteria:
+Criteria (each scored from 1 to 10):
 1. Relevance: Does it match job title + country?
 2. Accuracy: Are the mentioned skills actually from job posts?
-3. Completeness: All required sections present?
-4. Clarity: Is the writing clear?
-5. Visual Appeal: Is it styled well?
-6. Insights: Are resume suggestions meaningful?
+3. Completeness: Are all required sections included?
+4. Clarity: Is the writing clear and structured?
+5. Visual Appeal: Is it styled well and pleasant to read?
+6. Insights: Are resume suggestions meaningful, actionable, and aligned with job market?
 
 Format:
 {{
-  "relevance": <int>,
-  "accuracy": <int>,
-  "completeness": <int>,
-  "clarity": <int>,
-  "visual_appeal": <int>,
-  "insights": <int>,
-  "final_score": <int>,
+  "relevance": <int>,         # 1-10
+  "accuracy": <int>,          # 1-10
+  "completeness": <int>,      # 1-10
+  "clarity": <int>,           # 1-10
+  "visual_appeal": <int>,     # 1-10
+  "insights": <int>,          # 1-10
+  "final_score": <int>,       # out of 10
   "comments": "..."
 }}
 
@@ -93,6 +101,9 @@ def evaluate_html_report():
 # Entry point
 if __name__ == "__main__":
     result = evaluate_html_report()
-    print("\n✅ LangSmith Evaluation Summary:")
+    print("\n✅ LangSmith Evaluation Summary:\n")
     for k, v in result.items():
-        print(f"{k}: {v}")
+        if k == "final_score":
+            print(f"⭐ FINAL SCORE (out of 10): {v} ⭐\n")
+        else:
+            print(f"{k}: {v}")

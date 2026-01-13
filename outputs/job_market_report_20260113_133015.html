@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Job Market Analysis and Resume Boost Report</title>
+  <style>
+    :root{
+      --bg:#f7fbff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --primary:#2563eb;
+      --primary-2:#06b6d4;
+      --accent:#a78bfa;
+      --good:#16a34a;
+      --warn:#f59e0b;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      --radius: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1100px 500px at 15% -10%, rgba(37,99,235,.18), transparent 60%),
+        radial-gradient(900px 450px at 95% 0%, rgba(6,182,212,.18), transparent 55%),
+        radial-gradient(900px 450px at 60% 115%, rgba(167,139,250,.16), transparent 55%),
+        var(--bg);
+      line-height:1.45;
+    }
+
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 56px}
+
+    header{
+      background: linear-gradient(135deg, rgba(37,99,235,.10), rgba(6,182,212,.10));
+      border:1px solid rgba(226,232,240,.9);
+      border-radius: calc(var(--radius) + 8px);
+      padding: 22px 22px 18px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow:hidden;
+    }
+    header:before{
+      content:"";
+      position:absolute;inset:-2px;
+      background: linear-gradient(135deg, rgba(37,99,235,.35), rgba(6,182,212,.25), rgba(167,139,250,.25));
+      filter: blur(26px);
+      opacity:.35;
+      z-index:0;
+    }
+    header > *{position:relative;z-index:1}
+
+    h1{margin:0 0 10px;font-size:26px;letter-spacing:.2px}
+    .sub{color:var(--muted);margin:0 0 14px;font-size:14px}
+
+    .meta{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr .75fr;
+      gap:12px;
+    }
+    .pill{
+      background: rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      border-radius: 999px;
+      padding:10px 12px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, .06);
+      overflow:hidden;
+    }
+    .pill .k{font-size:12px;color:var(--muted);margin-bottom:2px}
+    .pill .v{font-weight:650;font-size:13px}
+    .pill code{font-family:var(--mono);font-size:12px}
+
+    .section{
+      margin-top:18px;
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .section .hd{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+      padding:18px 18px 12px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(135deg, rgba(37,99,235,.06), rgba(6,182,212,.04));
+    }
+    .section h2{margin:0;font-size:18px}
+    .section .hint{margin:2px 0 0;color:var(--muted);font-size:13px}
+    .section .bd{padding:16px 18px 18px}
+
+    .grid-2{display:grid;grid-template-columns: 1.1fr .9fr;gap:14px}
+    @media (max-width: 980px){.meta{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
+
+    .callout{
+      border:1px solid rgba(226,232,240,.9);
+      border-radius: 14px;
+      padding:14px;
+      background: linear-gradient(135deg, rgba(6,182,212,.08), rgba(167,139,250,.06));
+    }
+    .callout b{color:var(--text)}
+    .small{font-size:13px;color:var(--muted)}
+
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:14px;border:1px solid var(--line)}
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color:#0b1220;
+      background: linear-gradient(180deg, rgba(37,99,235,.10), rgba(37,99,235,.06));
+      border-bottom:1px solid var(--line);
+      padding:10px 10px;
+      letter-spacing:.2px;
+      text-transform:uppercase;
+    }
+    tbody td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+      vertical-align:top;
+    }
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:nth-child(odd){background: rgba(248,250,252,.75)}
+
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:2px 9px;
+      border-radius:999px;
+      border:1px solid rgba(226,232,240,.9);
+      background: rgba(255,255,255,.9);
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--primary)}
+
+    .bars{display:flex;flex-direction:column;gap:10px}
+    .bar{
+      border:1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding:10px 10px 10px;
+    }
+    .bar-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+    .bar-name{font-weight:650;font-size:13px}
+    .bar-meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+    .track{margin-top:8px;height:10px;border-radius:999px;background: rgba(226,232,240,.75);overflow:hidden}
+    .fill{height:100%;border-radius:999px;background: linear-gradient(90deg, var(--primary), var(--primary-2));}
+
+    .note{
+      margin-top:10px;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px dashed rgba(148,163,184,.9);
+      background: rgba(248,250,252,.7);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .foot{margin-top:14px;color:var(--muted);font-size:12px}
+    .kbd{font-family:var(--mono);background:rgba(15,23,42,.04);border:1px solid rgba(226,232,240,.9);padding:1px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Job Market Analysis and Resume Boost Report</h1>
+      <p class="sub">A focused view of the most requested capabilities across the analyzed roles, plus the next best learning targets based on observed market demand.</p>
+
+      <div class="meta">
+        <div class="pill">
+          <div class="k">Target Job Titles</div>
+          <div class="v"><code>AI Engineer</code>, <code>Generative AI Engineer</code>, <code>GenAI Engineer</code>, <code>Agentic AI Engineer</code>, <code>AI Developer</code>, <code>AI Team Leader</code>, <code>Machine Learning Engineer</code>, <code>ML Engineer</code></div>
+        </div>
+        <div class="pill">
+          <div class="k">Country</div>
+          <div class="v">Saudi Arabia</div>
+        </div>
+        <div class="pill">
+          <div class="k">Number of job listings analyzed</div>
+          <div class="v">30</div>
+        </div>
+      </div>
+
+      <div class="foot">Data note: Skill frequencies below come from the provided job-posting dataset snapshot (<span class="kbd">n=22</span>) using per-posting deduplication and synonym grouping. The header listing count is kept as requested.</div>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section class="section" id="market">
+      <div class="hd">
+        <div>
+          <h2>1) Job Market Analysis</h2>
+          <div class="hint">Top 20 most in-demand technical skills & tools, plus the most mentioned cloud platforms and certifications.</div>
+        </div>
+        <div class="tag"><span class="dot"></span> Demand is shown as positions mentioning the item / % of positions (n=22)</div>
+      </div>
+
+      <div class="bd">
+        <div class="grid-2">
+          <div>
+            <h3 style="margin:0 0 10px;font-size:15px;">Top 20 Technical Skills / Tools</h3>
+            <table aria-label="Top 20 technical skills and tools">
+              <thead>
+                <tr>
+                  <th style="width:52%">Skill / Tool (Grouped)</th>
+                  <th style="width:18%">Positions</th>
+                  <th style="width:18%">Share</th>
+                  <th style="width:12%">Demand</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><b>Python</b></td><td>12</td><td>54.55%</td><td><div class="track"><div class="fill" style="width:54.55%"></div></div></td></tr>
+                <tr><td><b>Kubernetes</b> (incl. K8s)</td><td>6</td><td>27.27%</td><td><div class="track"><div class="fill" style="width:27.27%"></div></div></td></tr>
+                <tr><td><b>TensorFlow</b></td><td>6</td><td>27.27%</td><td><div class="track"><div class="fill" style="width:27.27%"></div></div></td></tr>
+                <tr><td><b>PyTorch</b></td><td>6</td><td>27.27%</td><td><div class="track"><div class="fill" style="width:27.27%"></div></div></td></tr>
+                <tr><td><b>LangChain</b></td><td>5</td><td>22.73%</td><td><div class="track"><div class="fill" style="width:22.73%"></div></div></td></tr>
+                <tr><td><b>CI/CD</b></td><td>5</td><td>22.73%</td><td><div class="track"><div class="fill" style="width:22.73%"></div></div></td></tr>
+                <tr><td><b>SQL</b></td><td>5</td><td>22.73%</td><td><div class="track"><div class="fill" style="width:22.73%"></div></div></td></tr>
+                <tr><td><b>Docker</b></td><td>4</td><td>18.18%</td><td><div class="track"><div class="fill" style="width:18.18%"></div></div></td></tr>
+                <tr><td><b>FastAPI</b></td><td>4</td><td>18.18%</td><td><div class="track"><div class="fill" style="width:18.18%"></div></div></td></tr>
+                <tr><td><b>Git</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>RAG</b> (Retrieval-Augmented Generation)</td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>MLOps</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>Distributed systems</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>LangGraph</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>Grafana</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>MLflow</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>TypeScript</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>LlamaIndex</b></td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>Hugging Face</b> (incl. Transformers)</td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+                <tr><td><b>LLMs</b> (generic)</td><td>3</td><td>13.64%</td><td><div class="track"><div class="fill" style="width:13.64%"></div></div></td></tr>
+              </tbody>
+            </table>
+
+            <div class="note">
+              <b>How to read this:</b> items are grouped by normalized synonyms (e.g., K8s → Kubernetes). Counts represent the number of postings mentioning the item at least once.
+            </div>
+          </div>
+
+          <div>
+            <div class="callout">
+              <h3 style="margin:0 0 8px;font-size:15px;">Cloud Platforms (AWS / Azure / GCP)</h3>
+              <table aria-label="Top cloud platforms">
+                <thead>
+                  <tr>
+                    <th>Cloud Platform</th>
+                    <th>Positions</th>
+                    <th>Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><b>AWS</b></td><td>8</td><td>36.36%</td></tr>
+                  <tr><td><b>GCP</b></td><td>8</td><td>36.36%</td></tr>
+                  <tr><td><b>Azure</b></td><td>5</td><td>22.73%</td></tr>
+                </tbody>
+              </table>
+              <div class="small" style="margin-top:10px;">AWS and GCP are tied as the most frequently mentioned cloud platforms in the dataset snapshot.</div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div class="callout">
+              <h3 style="margin:0 0 8px;font-size:15px;">Certifications Mentioned</h3>
+              <table aria-label="Certifications mentioned">
+                <thead>
+                  <tr>
+                    <th>Certification</th>
+                    <th>Positions</th>
+                    <th>Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><b>Generative AI Professional Certification</b></td><td>1</td><td>4.55%</td></tr>
+                  <tr><td><b>Deep Gen AI Certification</b></td><td>1</td><td>4.55%</td></tr>
+                </tbody>
+              </table>
+              <div class="small" style="margin-top:10px;">Only two unique certifications appeared in the provided postings snapshot, so a broader “Top 5” list is not available without adding items not present in the data.</div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div class="callout">
+              <h3 style="margin:0 0 8px;font-size:15px;">Quick takeaway</h3>
+              <div class="small">
+                Demand clusters around <b>Python</b>, mainstream DL frameworks (<b>PyTorch</b>/<b>TensorFlow</b>), production infrastructure (<b>Kubernetes</b>, <b>Docker</b>, <b>CI/CD</b>), and GenAI application delivery (<b>LangChain</b>, <b>RAG</b>, <b>LLMs</b>).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="section" id="boost">
+      <div class="hd">
+        <div>
+          <h2>2) Resume Boosting Suggestions</h2>
+          <div class="hint">This compares the resume skill set against observed market needs and highlights the next best skills/tools to learn—based strictly on demand and identified gaps.</div>
+        </div>
+        <div class="tag"><span class="dot" style="background:var(--good)"></span> Top 5 learning targets</div>
+      </div>
+
+      <div class="bd">
+        <div class="callout" style="margin-bottom:14px;">
+          <div class="small">
+            This section focuses on <b>skills/tools not listed in the current resume skills</b> but repeatedly requested in the analyzed postings. The goal is to help you prioritize learning that maximizes alignment with the market.
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <h3 style="margin:0 0 10px;font-size:15px;">Top 5 Suggested Skills/Tools to Learn Next (with frequency stats)</h3>
+            <table aria-label="Top 5 next skills/tools">
+              <thead>
+                <tr>
+                  <th style="width:8%">Rank</th>
+                  <th style="width:52%">Skill / Tool</th>
+                  <th style="width:20%">Mention rate</th>
+                  <th style="width:20%">Positions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td><b>Kubernetes</b></td><td>27.27%</td><td>6 / 22</td></tr>
+                <tr><td>2</td><td><b>FastAPI</b></td><td>18.18%</td><td>4 / 22</td></tr>
+                <tr><td>3</td><td><b>Hugging Face</b> (Transformers ecosystem)</td><td>13.64%</td><td>3 / 22</td></tr>
+                <tr><td>4</td><td><b>LangFuse</b> (LLM observability)</td><td>13.64%</td><td>3 / 22</td></tr>
+                <tr><td>5</td><td><b>Grafana</b></td><td>13.64%</td><td>3 / 22</td></tr>
+              </tbody>
+            </table>
+
+            <div class="note">
+              <b>Encouraging note:</b> your current stack already aligns strongly with several high-frequency items (e.g., Python, Docker, CI/CD, SQL, PyTorch/TensorFlow, LangChain/LangGraph/LlamaIndex, RAG, MLflow, and major cloud services). These five suggestions are the highest-impact additions identified from the provided gap analysis.
+            </div>
+          </div>
+
+          <div>
+            <h3 style="margin:0 0 10px;font-size:15px;">Demand snapshot (visual)</h3>
+            <div class="bars" aria-label="Demand snapshot bars">
+              <div class="bar">
+                <div class="bar-top"><div class="bar-name">Kubernetes</div><div class="bar-meta">6/22 • 27.27%</div></div>
+                <div class="track"><div class="fill" style="width:27.27%"></div></div>
+              </div>
+              <div class="bar">
+                <div class="bar-top"><div class="bar-name">FastAPI</div><div class="bar-meta">4/22 • 18.18%</div></div>
+                <div class="track"><div class="fill" style="width:18.18%"></div></div>
+              </div>
+              <div class="bar">
+                <div class="bar-top"><div class="bar-name">Hugging Face</div><div class="bar-meta">3/22 • 13.64%</div></div>
+                <div class="track"><div class="fill" style="width:13.64%"></div></div>
+              </div>
+              <div class="bar">
+                <div class="bar-top"><div class="bar-name">LangFuse</div><div class="bar-meta">3/22 • 13.64%</div></div>
+                <div class="track"><div class="fill" style="width:13.64%"></div></div>
+              </div>
+              <div class="bar">
+                <div class="bar-top"><div class="bar-name">Grafana</div><div class="bar-meta">3/22 • 13.64%</div></div>
+                <div class="track"><div class="fill" style="width:13.64%"></div></div>
+              </div>
+            </div>
+
+            <div class="callout" style="margin-top:14px;">
+              <h3 style="margin:0 0 8px;font-size:15px;">Frequency stats at a glance</h3>
+              <div class="small">
+                The suggested additions are all mentioned in <b>3–6</b> postings out of <b>22</b> (i.e., <b>13.64%–27.27%</b>), making them practical targets that repeatedly appear across roles rather than one-off niche requirements.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="foot">All insights are derived from the supplied analyses; no additional skills, tools, or certifications were introduced beyond what appeared in the data.</div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

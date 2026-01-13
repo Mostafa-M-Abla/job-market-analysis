@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Market Analysis and Resume Boost Report</title>
+  <style>
+    :root{
+      --bg:#f7fbff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:#e2e8f0;
+      --shadow:0 10px 25px rgba(2,6,23,.08);
+      --primary:#2563eb;
+      --primary-2:#06b6d4;
+      --accent:#22c55e;
+      --warn:#f59e0b;
+      --chip:#eef2ff;
+      --tableHead:#f1f5ff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 12% 10%, rgba(37,99,235,.12), transparent 55%),
+        radial-gradient(900px 500px at 85% 15%, rgba(6,182,212,.12), transparent 50%),
+        radial-gradient(900px 600px at 50% 95%, rgba(34,197,94,.10), transparent 55%),
+        var(--bg);
+      line-height:1.45;
+    }
+    .wrap{max-width:1100px;margin:34px auto;padding:0 18px 48px}
+    header{
+      background:linear-gradient(135deg, rgba(37,99,235,.12), rgba(6,182,212,.10));
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:22px 22px 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    header:before{
+      content:"";
+      position:absolute;
+      inset:-80px -80px auto auto;
+      width:260px;height:260px;
+      background:radial-gradient(circle at 30% 30%, rgba(37,99,235,.18), transparent 60%);
+      transform:rotate(25deg);
+    }
+    h1{margin:0 0 10px;font-size:28px;letter-spacing:-0.02em}
+    .sub{color:var(--muted);margin:0 0 14px}
+    .meta{
+      display:flex;flex-wrap:wrap;gap:10px;
+      padding:10px 0 0;margin:0;
+      list-style:none;
+    }
+    .chip{
+      background:var(--chip);
+      border:1px solid rgba(37,99,235,.18);
+      color:#1e3a8a;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      display:inline-flex;gap:8px;align-items:center;
+    }
+    .chip b{color:#0f172a}
+
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:14px}
+    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
+
+    section{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    h2{margin:0 0 10px;font-size:18px}
+    h3{margin:14px 0 8px;font-size:14px;color:#0b1220}
+    p{margin:8px 0;color:var(--muted)}
+
+    .kpiRow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media (max-width: 700px){.kpiRow{grid-template-columns:1fr}}
+    .kpi{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 12px 10px;
+      background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(241,245,255,.9));
+    }
+    .kpi .label{font-size:12px;color:var(--muted)}
+    .kpi .val{font-size:20px;font-weight:750;margin-top:4px}
+    .kpi .hint{font-size:12px;color:var(--muted);margin-top:6px}
+
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:12px;border:1px solid var(--border)}
+    thead th{
+      background:var(--tableHead);
+      color:#0f172a;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      padding:10px;
+      border-bottom:1px solid var(--border);
+    }
+    tbody td{padding:10px;border-bottom:1px solid var(--border);font-size:14px;color:#0f172a;vertical-align:top}
+    tbody tr:last-child td{border-bottom:none}
+    tbody td.small{font-size:13px;color:var(--muted)}
+    .right{text-align:right}
+
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);
+      background:#fff;
+    }
+    .dot{width:9px;height:9px;border-radius:50%}
+    .d1{background:var(--primary)}
+    .d2{background:var(--primary-2)}
+    .d3{background:var(--accent)}
+    .d4{background:var(--warn)}
+
+    .barWrap{display:grid;gap:10px;margin-top:10px}
+    .barItem{display:grid;grid-template-columns:170px 1fr 70px;gap:10px;align-items:center}
+    @media (max-width: 700px){.barItem{grid-template-columns:1fr;gap:6px}}
+    .barLabel{font-size:13px;color:#0f172a}
+    .bar{
+      height:12px;border-radius:999px;
+      background:linear-gradient(90deg, rgba(37,99,235,.18), rgba(6,182,212,.12));
+      border:1px solid rgba(2,6,23,.08);
+      overflow:hidden;
+    }
+    .fill{
+      height:100%;border-radius:999px;
+      background:linear-gradient(90deg, var(--primary), var(--primary-2));
+      width:0;
+    }
+    .barVal{font-size:12px;color:var(--muted);text-align:right}
+
+    .note{
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(255,255,255,.95));
+      border:1px solid rgba(34,197,94,.20);
+      color:#064e3b;
+      font-size:13px;
+    }
+    .foot{color:var(--muted);font-size:12px;margin-top:12px}
+    .sep{height:1px;background:var(--border);margin:12px 0}
+
+    /* Print-friendly */
+    @media print{
+      body{background:#fff}
+      header, section{box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Job Market Analysis and Resume Boost Report</h1>
+      <p class="sub">A concise, data-driven snapshot of hiring demand in Egypt for AI/GenAI roles, plus prioritized next learning steps based on observed market frequency.</p>
+      <ul class="meta">
+        <li class="chip"><b>Target Job Titles</b>: AI Engineer, Generative AI Engineer, GenAI Engineer, Agentic AI Engineer, AI Developer, AI Team Leader, Machine Learning Engineer, ML Engineer</li>
+        <li class="chip"><b>Country</b>: Egypt</li>
+        <li class="chip"><b>Number of job listings analyzed</b>: 30</li>
+      </ul>
+      <div class="sep"></div>
+      <div class="kpiRow">
+        <div class="kpi">
+          <div class="label">Source statistics available for</div>
+          <div class="val">23 postings</div>
+          <div class="hint">Skill frequencies and percentages below are computed from the provided market overview (N=23).</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Most common core language</div>
+          <div class="val">Python (69.6%)</div>
+          <div class="hint">Mentioned in 16 out of 23 postings.</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Top cloud platforms</div>
+          <div class="val">AWS / Azure / GCP</div>
+          <div class="hint">Each appears in 34.8% (8/23) of postings.</div>
+        </div>
+      </div>
+      <p class="foot"><b>Important:</b> While 30 listings were analyzed in the broader task, the only frequency data provided in context is for <b>N=23 postings</b>. This report uses N=23 wherever percentages or counts are shown.</p>
+    </header>
+
+    <div class="grid">
+      <section>
+        <h2>1) Job Market Analysis</h2>
+        <p>
+          The table below summarizes the <b>top 20 most in-demand</b> technical skills/tools observed across the provided postings.
+          Items are <b>grouped to avoid duplication</b> (e.g., “Sklearn” and “scikit-learn” are treated as one).
+        </p>
+
+        <h3>Top 20 Technical Skills & Tools (N=23)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:52%">Skill / Tool (grouped)</th>
+              <th class="right" style="width:16%">Positions</th>
+              <th class="right" style="width:16%">Share</th>
+              <th style="width:16%">Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><b>Python</b></td><td class="right">16</td><td class="right">69.6%</td><td class="small">Programming</td></tr>
+            <tr><td><b>LangChain</b></td><td class="right">8</td><td class="right">34.8%</td><td class="small">LLM framework</td></tr>
+            <tr><td><b>RAG (Retrieval-Augmented Generation)</b></td><td class="right">8</td><td class="right">34.8%</td><td class="small">GenAI pattern</td></tr>
+            <tr><td><b>LLMs (Large Language Models)</b></td><td class="right">7</td><td class="right">30.4%</td><td class="small">GenAI foundation</td></tr>
+            <tr><td><b>scikit-learn (Sklearn)</b></td><td class="right">7</td><td class="right">30.4%</td><td class="small">ML library</td></tr>
+            <tr><td><b>Machine Learning (ML)</b></td><td class="right">6</td><td class="right">26.1%</td><td class="small">Core discipline</td></tr>
+            <tr><td><b>Natural Language Processing (NLP)</b></td><td class="right">6</td><td class="right">26.1%</td><td class="small">Core discipline</td></tr>
+            <tr><td><b>TensorFlow</b></td><td class="right">6</td><td class="right">26.1%</td><td class="small">Deep learning</td></tr>
+            <tr><td><b>PyTorch</b></td><td class="right">6</td><td class="right">26.1%</td><td class="small">Deep learning</td></tr>
+            <tr><td><b>Pandas</b></td><td class="right">6</td><td class="right">26.1%</td><td class="small">Data tooling</td></tr>
+            <tr><td><b>CI/CD</b></td><td class="right">5</td><td class="right">21.7%</td><td class="small">DevOps</td></tr>
+            <tr><td><b>Docker</b></td><td class="right">5</td><td class="right">21.7%</td><td class="small">Containers</td></tr>
+            <tr><td><b>Kubernetes</b></td><td class="right">5</td><td class="right">21.7%</td><td class="small">Orchestration</td></tr>
+            <tr><td><b>MLOps</b></td><td class="right">5</td><td class="right">21.7%</td><td class="small">Production ML</td></tr>
+            <tr><td><b>Embeddings</b></td><td class="right">5</td><td class="right">21.7%</td><td class="small">RAG component</td></tr>
+            <tr><td><b>APIs (general)</b></td><td class="right">5</td><td class="right">21.7%</td><td class="small">Integration</td></tr>
+            <tr><td><b>NumPy</b></td><td class="right">5</td><td class="right">21.7%</td><td class="small">Data tooling</td></tr>
+            <tr><td><b>FastAPI</b></td><td class="right">4</td><td class="right">17.4%</td><td class="small">Backend/API</td></tr>
+            <tr><td><b>SQL</b></td><td class="right">4</td><td class="right">17.4%</td><td class="small">Data querying</td></tr>
+            <tr><td><b>Git / GitHub (version control)</b></td><td class="right">4</td><td class="right">17.4%</td><td class="small">Engineering</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Cloud Platforms (AWS / Azure / GCP only)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Cloud Platform</th>
+              <th class="right">Positions</th>
+              <th class="right">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="badge"><span class="dot d1"></span><b>AWS</b></span></td><td class="right">8</td><td class="right">34.8%</td></tr>
+            <tr><td><span class="badge"><span class="dot d2"></span><b>Azure</b></span></td><td class="right">8</td><td class="right">34.8%</td></tr>
+            <tr><td><span class="badge"><span class="dot d3"></span><b>GCP</b></span></td><td class="right">8</td><td class="right">34.8%</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Certifications Mentioned (explicitly in postings)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Certification</th>
+              <th class="right">Positions</th>
+              <th class="right">Share</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><b>Machine Learning</b> (certification/coursework)</td><td class="right">1</td><td class="right">4.3%</td><td class="small">Explicitly mentioned</td></tr>
+            <tr><td><b>Artificial Intelligence</b> (certification/coursework)</td><td class="right">1</td><td class="right">4.3%</td><td class="small">Explicitly mentioned</td></tr>
+            <tr><td><b>Deep Learning</b> (certification/coursework)</td><td class="right">1</td><td class="right">4.3%</td><td class="small">Explicitly mentioned</td></tr>
+            <tr><td><b>Natural Language Processing</b> (certification/coursework)</td><td class="right">1</td><td class="right">4.3%</td><td class="small">Explicitly mentioned</td></tr>
+            <tr><td><b>Data Analytics</b> (certification/coursework)</td><td class="right">1</td><td class="right">4.3%</td><td class="small">Explicitly mentioned</td></tr>
+            <tr><td><b>Azure Data Scientist Associate</b></td><td class="right">1</td><td class="right">4.3%</td><td class="small">Present in postings (additional)</td></tr>
+            <tr><td><b>Power BI Data Analyst Associate</b></td><td class="right">1</td><td class="right">4.3%</td><td class="small">Present in postings (additional)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          Encouraging insight: the market strongly favors <b>Python + GenAI patterns (LangChain/RAG/LLMs)</b> alongside <b>production readiness</b> (Docker, CI/CD, Kubernetes, MLOps).
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Resume Boosting Suggestions</h2>
+        <p>
+          This section compares the user’s currently stated coverage (as provided in the context) with market needs, and highlights the <b>top 5</b>
+          skills/tools to learn next based on <b>how frequently they appear</b> in postings.
+        </p>
+
+        <h3>Top 5 Suggested Skills/Tools to Learn Next (Gap-based)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:8%">#</th>
+              <th style="width:52%">Skill/Tool</th>
+              <th class="right" style="width:20%">Mention rate</th>
+              <th class="right" style="width:20%">Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><b>scikit-learn (Sklearn)</b></td><td class="right">30.4%</td><td class="right">7/23</td></tr>
+            <tr><td>2</td><td><b>Kubernetes</b></td><td class="right">21.7%</td><td class="right">5/23</td></tr>
+            <tr><td>3</td><td><b>Embeddings</b> (deeper focus + operationalization)</td><td class="right">21.7%</td><td class="right">5/23</td></tr>
+            <tr><td>4</td><td><b>NumPy</b></td><td class="right">21.7%</td><td class="right">5/23</td></tr>
+            <tr><td>5</td><td><b>MLOps</b> (broader practices & toolchain)</td><td class="right">21.7%</td><td class="right">5/23</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Quick Visual: Market Demand of Suggested Items</h3>
+        <div class="barWrap" aria-label="Bar chart of mention rates">
+          <div class="barItem">
+            <div class="barLabel">scikit-learn (Sklearn)</div>
+            <div class="bar"><div class="fill" style="width:30.4%"></div></div>
+            <div class="barVal">30.4% (7/23)</div>
+          </div>
+          <div class="barItem">
+            <div class="barLabel">Kubernetes</div>
+            <div class="bar"><div class="fill" style="width:21.7%"></div></div>
+            <div class="barVal">21.7% (5/23)</div>
+          </div>
+          <div class="barItem">
+            <div class="barLabel">Embeddings</div>
+            <div class="bar"><div class="fill" style="width:21.7%"></div></div>
+            <div class="barVal">21.7% (5/23)</div>
+          </div>
+          <div class="barItem">
+            <div class="barLabel">NumPy</div>
+            <div class="bar"><div class="fill" style="width:21.7%"></div></div>
+            <div class="barVal">21.7% (5/23)</div>
+          </div>
+          <div class="barItem">
+            <div class="barLabel">MLOps</div>
+            <div class="bar"><div class="fill" style="width:21.7%"></div></div>
+            <div class="barVal">21.7% (5/23)</div>
+          </div>
+        </div>
+
+        <div class="note">
+          Practical takeaway: prioritizing <b>Sklearn</b> and <b>Kubernetes</b> tends to improve alignment with both classical ML expectations and production deployment requirements.
+        </div>
+
+        <p class="foot">
+          Frequency stats are taken directly from the provided market overview (N=23). No additional skills or tools are inferred beyond that dataset.
+        </p>
+      </section>
+    </div>
+
+    <p class="foot" style="margin-top:14px">
+      <b>Method note:</b> Each item is counted at most once per posting (even if repeated within the same listing). Percentages are computed as (positions mentioning item / 23) × 100.
+    </p>
+  </div>
+</body>
+</html>
