@@ -178,23 +178,30 @@ def build_muti_agent_crew():
     # Task 6: Report writing task
     report_writing_task = Task(
         description=(
-            "Using the info and the mark down files from the previous two tasks (job_requirements_analysis_task and "
-            "resume_boost_task), put the information in one informative, good looking and visually appealing html report."
-            "The title of teh report should be 'Job Market Analysis and Resume Boost Report', below it mention the target "
-            "job titles: {job_titles}, and then the country {country} and the number of job positions scanned. Then show the results of the job "
-            "market analysis, then at the end show the Resume boosting suggestions."
-            "You don't hallucinate or make up data, you use the data attained from previous tasks to write the report"
-            "You avoid duplication and you understand synonyms of skills and tools e.g. ML and Machine learning are the same."
-            "You provide the information in an informative, polite and appealing style."
-            "The report should be colourful and visually appealing, use visually appealing tables charts whenever necessary."
-            "In the 'Resume Boosting suggestions' Explain shortly what is it about and that you compared the skills needed "
-            "by the market for those jobs titles and you compared them with the skills in the Resume and that you are showing the suggestions."
-            "Don't suggest how the new skills, that should be attained next should best be written in the Resume."
-            "In the html avoid dark themes use a light theme instead."
-            "Use the SaveHTMLTool to save the html file."
+            "Combine the outputs from the job market analysis and resume boost tasks into a single, informative, and visually appealing HTML report. "
+            "The report should have the title 'Job Market Analysis and Resume Boost Report'. Directly underneath, list: "
+            "- Target Job Titles: {job_titles}  \n"
+            "- Country: {country}  \n"
+            "- Number of job listings analyzed: {total_num_posts}  \n\n"
+        
+            "Then include the following sections:\n"
+            "1. **Job Market Analysis** — summarize the most in-demand technical skills, tools, cloud platforms, and certifications with tables/charts.\n"
+            "2. **Resume Boosting Suggestions** — briefly explain that this section compares the user’s resume with the market needs and presents top 5 suggested skills/tools to learn next. Include frequency stats in a table or chart.\n\n"
+        
+            "Style Requirements:\n"
+            "- Use polite, concise, and encouraging tone.\n"
+            "- Use colorful, light-themed HTML with professional formatting.\n"
+            "- Include visually attractive tables and charts where appropriate.\n"
+            "- Avoid hallucinations and duplications.\n"
+            "- Do not suggest how to phrase resume content; only present insights.\n\n"
+            
+            "Use SaveHTMLTool to save the final report to disk."
         ),
         expected_output=(
-            "HTML report containing a well formatted and visually appealing information."
+            "A complete, professionally formatted HTML string containing the combined report. "
+            "It must include the report title, meta info (job titles, country, number of listings), "
+            "two structured sections (Job Market Analysis and Resume Boosting Suggestions), and use light-themed design with clean tables and charts. "
+            "The HTML should be ready to be saved to disk using SaveHTMLTool and rendered well in modern browsers."
         ),
         agent=report_writer_agent,
         context=[job_requirements_analysis_task, resume_boost_task],
